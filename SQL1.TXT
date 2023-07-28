@@ -1,0 +1,20 @@
+CREATE VIEW EnterpriseMedicineInfo AS
+SELECT
+    wm.enterprise AS enterprise,
+    wm.img AS enterprise_img,
+    wm.name AS medicine_name,
+    wm.img AS medicine_img,
+    wm.symptom AS medicine_symptom
+FROM
+    whir_medicine wm
+JOIN
+    (SELECT
+        DISTINCT ON (name)
+        name, symptom
+    FROM
+        whir_medicine
+    WHERE
+        name IS NOT NULL AND symptom IS NOT NULL) wm_symptom
+ON
+    wm.name = wm_symptom.name;
+
