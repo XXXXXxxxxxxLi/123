@@ -1,0 +1,23 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+  <div class="card w-50 mx-auto mt-5">
+    <div class="card-header bg-primary text-white text-center">
+      <h2>上传新的图片</h2>
+    </div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for form in formset %}
+        <div class="form-group">
+          {{ form.path.label }}: {{ form.path }}
+        </div>
+        {% endfor %}
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary btn-block">上传</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

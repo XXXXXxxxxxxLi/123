@@ -1,0 +1,15 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+  <h2>标注图片</h2>
+  <!-- 显示图片 -->
+  <div class="text-center" style="margin-bottom: 20px;">
+    <img src="{{ image.path.url }}" class="img-fluid" style="max-height: 70vh;">
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">提交标注并进入下一张</button>
+  </form>
+{% endblock %}
