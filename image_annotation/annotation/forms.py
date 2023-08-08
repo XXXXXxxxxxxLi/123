@@ -44,6 +44,7 @@ class TaggedDataForm(forms.ModelForm):
         queryset=Single_Physique.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         required=True,
+        label="体质",
     )
 
     class Meta:
