@@ -1,0 +1,15 @@
+LICENSE
+MANIFEST.in
+README.md
+pyproject.toml
+setup.cfg
+setup.py
+lanms/__init__.py
+lanms/csrc/lanms.cpp
+lanms/csrc/lanms.h
+lanms/csrc/clipper/clipper.cpp
+lanms/csrc/clipper/clipper.hpp
+lanms_neo.egg-info/PKG-INFO
+lanms_neo.egg-info/SOURCES.txt
+lanms_neo.egg-info/dependency_links.txt
+lanms_neo.egg-info/top_level.txt
