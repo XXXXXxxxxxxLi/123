@@ -1,0 +1,18 @@
+\documentclass{ctexbook}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+
+\title{我的LaTeX文档}
+\author{作者姓名}
+\date{2023-08-23}
+
+\begin{document}
+
+\maketitle
+
+{% for chapter_content in chapters %}
+{{ chapter_content }}
+{% endfor %}
+
+\end{document}

@@ -1,0 +1,60 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<form id="chapterForm" method="post">
+    {% csrf_token %}
+    {% for choice_value, choice_label in form.chapters.field.choices %}
+    <div>
+        <input type="checkbox" name="chapters" value="{{ choice_value }}"
+               data-label="{{ choice_label }}"
+               id="{{ choice_value }}"
+               onchange="updateOrderField(this);">
+        <label for="{{ choice_value }}">{{ choice_label }}</label>
+        <!-- 添加一个span用于显示序号 -->
+        <span class="order-number" data-for="{{ choice_value }}"></span>
+    </div>
+    {% endfor %}
+    <div>
+        <label for="{{ form.order.id_for_label }}">Order:</label>
+        {{ form.order }}
+    </div>
+    <input type="submit" value="Submit">
+</form>
+
+<script>
+    function updateOrderField(checkboxElem) {
+        let orderInput = $('#{{ form.order.id_for_label }}');
+        let currentOrder = orderInput.val() ? orderInput.val().split(',') : [];
+
+        if (checkboxElem.checked) {
+            // 如果选中，将值添加到输入框
+            currentOrder.push(checkboxElem.value);
+        } else {
+            // 如果取消选中，从数组中移除它
+            currentOrder = currentOrder.filter(item => item !== checkboxElem.value);
+        }
+
+        // 使用逗号将数组转回为字符串
+        orderInput.val(currentOrder.join(','));
+
+        // 更新序号
+        updateOrderNumbers();
+    }
+
+
+
+    function updateOrderNumbers() {
+        let orderInput = $('#{{ form.order.id_for_label }}');
+        let currentOrder = orderInput.val().split(',');
+        let orderNumbers = $('.order-number');
+
+        // 先清除所有的序号
+        orderNumbers.text('');
+
+        // 为每一个选中的选项设置序号
+        for (let i = 0; i < currentOrder.length; i++) {
+            let char = currentOrder[i];
+            let numberSpan = $(`.order-number[data-for="${char}"]`);
+            numberSpan.text(i + 1);  // 序号从1开始
+        }
+    }
+</script>
