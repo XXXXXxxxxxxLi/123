@@ -1,36 +1,61 @@
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.0-beta3/css/bootstrap.min.css">
+<title>Select Chapters</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        padding: 20px;
+    }
+    .form-group {
+        display: flex;
+        align-items: center;
+    }
+    .form-group label {
+        margin: 0 10px;
+    }
+    .order-number {
+        margin-left: auto;
+        font-weight: bold;
+        color: #007BFF;
+    }
+    input[type="submit"] {
+        margin-top: 20px;
+    }
+</style>
+</head>
+<body>
 
-<form id="chapterForm" method="post">
+<form id="chapterForm" method="post" class="bg-white p-5 rounded">
   {% csrf_token %}
   {% for choice_value, choice_label in form.chapters.field.choices %}
-  <div>
-    <input type="checkbox" name="chapters" value="{{ choice_value }}"
-           data-label="{{ choice_label }}"
-           id="{{ choice_value }}"
-           onchange="updateOrderField(this);">
-    <label for="{{ choice_value }}">{{ choice_label }}</label>
-    <!-- 添加一个span用于显示序号 -->
+  <div class="form-group">
+    <input type="checkbox" name="chapters" value="{{ choice_value }}" data-label="{{ choice_label }}" id="{{ choice_value }}" onchange="updateOrderField(this);" class="form-check-input">
+    <label for="{{ choice_value }}" class="form-check-label">{{ choice_label }}</label>
     <span class="order-number" data-for="{{ choice_value }}"></span>
   </div>
   {% endfor %}
-  <div>
+  <div class="form-group">
     <label for="{{ form.order.id_for_label }}">Order:</label>
     {{ form.order }}
   </div>
-  <input type="submit" value="Submit">
+  <input type="submit" value="提交" class="btn btn-primary">
 </form>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   function updateOrderField(checkboxElem) {
       let orderInput = $('#{{ form.order.id_for_label }}');
       let sep = '{{ form.order_sep }}';
-      let currentOrder = orderInput.val() ? orderInput.val().split(sep) : [];;
+      let currentOrder = orderInput.val() ? orderInput.val().split(sep) : [];
 
       if (checkboxElem.checked) {
-          // 如果选中，将值添加到输入框
           currentOrder.push(checkboxElem.value);
       } else {
-          // 如果取消选中，从输入框中移除它
           currentOrder = currentOrder.filter(item => item !== checkboxElem.value);
       }
       orderInput.val(currentOrder.join(sep));
@@ -39,13 +64,14 @@
 
   function updateOrderNumbers(currentOrder) {
       let orderNumbers = $('.order-number');
-      // 先清除所有的序号
       orderNumbers.text('');
-      // 为每一个选中的选项设置序号
       for (let i = 0; i < currentOrder.length; i++) {
           let o = currentOrder[i];
           let numberSpan = $(`.order-number[data-for="${o}"]`);
-          numberSpan.text(i + 1);  // 序号从1开始
+          numberSpan.text(i + 1);
       }
   }
 </script>
+
+</body>
+</html>

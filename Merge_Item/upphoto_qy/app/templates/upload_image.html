@@ -2,30 +2,28 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="card w-50 mx-auto">
-        <div class="card-header bg-primary text-white">
-            <h3 class="text-center">上传新的图片</h3>
+    <div class="card mx-auto" style="max-width: 500px;">
+        <div class="card-header bg-primary text-white text-center">
+            <h3>上传新的图片</h3>
         </div>
         <div class="card-body">
             <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                 {% csrf_token %}
                 {{ formset.management_form }}
                 {% for form in formset %}
-                <div class="form-group">
+                <div class="form-group mb-3">
                     <div class="custom-file">
-                        {{ form.path }}
-
+                        {{ form.path.label_tag }} {{ form.path }}
                     </div>
                 </div>
                 {% endfor %}
-                <button type="submit" class="btn btn-primary btn-block mt-3">上传</button>
+                <button type="submit" class="btn btn-primary btn-block">上传</button>
             </form>
         </div>
     </div>
 </div>
 
 <script>
-    // Change the label of file input when a file is chosen
     document.addEventListener("DOMContentLoaded", function() {
         const fileInputs = document.querySelectorAll('.custom-file-input');
 
