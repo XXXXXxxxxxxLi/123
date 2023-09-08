@@ -1,0 +1,9 @@
+<p>{{ message }}</p>
+{% if error_images %}
+    <p>以下图片未能上传：</p>
+    <ul>
+        {% for image in error_images %}
+            <li>{{ image }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}

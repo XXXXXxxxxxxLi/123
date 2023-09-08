@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片标注系统</title>
+        <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #f8f9fa;
+            padding: 5px; /* 调整为5px */
+            text-align: center;
+        }
+        main {
+            margin: 10px; /* 减少外边距 */
+            flex-grow: 1;
+            padding: 0px 100px;
+            margin-bottom: 20px; /* 减少底部外边距 */
+        }
+
+        footer {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 10px;
+            position: relative;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+
+</head>
+<body>
+    <header>
+        <h1>图片标注系统</h1>
+        <nav>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}
+        <!-- The content block will be filled by individual page templates -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2023 图片标注系统</p>
+    </footer>
+</body>
+</html>
