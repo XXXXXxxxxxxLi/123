@@ -12,7 +12,7 @@ IMAGE_PATH2 = "photo_pt/"
 
 
 @transaction.atomic
-def handle_new_upload(upload_filename, image_file, sha256, now):
+def handle_new_upload(upload_filename, image_file, sha256, now, success_list):
     image_path = default_storage.save(
         os.path.join(IMAGE_PATH2, image_file.name), image_file
     )
@@ -24,10 +24,11 @@ def handle_new_upload(upload_filename, image_file, sha256, now):
         sha256=sha256,
     )
     new_medicine.save()
+    success_list.append(image_file.name)
 
 
 @transaction.atomic
-def handle_empty_sha256(latest_record, image_file, sha256, now):
+def handle_empty_sha256(latest_record, image_file, sha256, now, success_list):
     image_path = default_storage.save(
         os.path.join(IMAGE_PATH2, image_file.name), image_file
     )
@@ -35,11 +36,18 @@ def handle_empty_sha256(latest_record, image_file, sha256, now):
     latest_record.sha256 = sha256
     latest_record.update_time = now
     latest_record.save()
+    success_list.append(image_file.name)
 
 
 @transaction.atomic
 def handle_different_sha256(
-    latest_record, upload_filename, upload_extension, image_file, sha256, now
+    latest_record,
+    upload_filename,
+    upload_extension,
+    image_file,
+    sha256,
+    now,
+    success_list,
 ):
     # 1. 重命名旧文件
     i = 1
@@ -88,6 +96,7 @@ def handle_different_sha256(
         sha256=sha256,
     )
     new_medicine.save()
+    success_list.append(image_file.name)
 
 
 def upload_pt_images(request):
@@ -97,57 +106,90 @@ def upload_pt_images(request):
 
     form = ImageUploadForm(request.POST, request.FILES)
     if not form.is_valid():
-        return render(request, "upload_images.html", {"form": form})  # 可能需要添加错误信息
+        return render(request, "upload_images.html", {"form": form})
 
-    # 获取多个文件
     image_files = request.FILES.getlist("images")
 
-    # 对每个文件进行循环
+    total_count = len(image_files)
+    success_list = []
+    failure_dict = {}
+
     for image_file in image_files:
-        if not image_file:  # 跳过NoneType文件
+        if not image_file:
+            failure_dict[image_file.name] = "文件为空或无效"
             continue
 
-        name = os.path.splitext(image_file.name)[0]
-
-        # 计算文件的SHA-256哈希值
         sha256 = hashlib.sha256(image_file.read()).hexdigest()
-        image_file.seek(0)  # 将文件指针定位到文件开头
+        image_file.seek(0)
 
-        # 分离文件名和扩展名
         upload_filename, upload_extension = os.path.splitext(image_file.name)
 
-        # 查找所有与上传的文件名匹配的记录，并基于最新的修改时间排序它们
         records = WhirMedicine.objects.filter(name=upload_filename).order_by(
             "-update_time"
         )
 
-        # 记录当前时间
         now = datetime.datetime.now()
 
         if not records.exists():
-            handle_new_upload(upload_filename, image_file, sha256, now)
+            handle_new_upload(upload_filename, image_file, sha256, now, success_list)
         else:
-            latest_record = records.first()  # 获取最新的记录
+            latest_record = records.first()
 
-            if not latest_record.sha256:
-                handle_empty_sha256(latest_record, image_file, sha256, now)
-            elif (
-                upload_filename == latest_record.name
-                and latest_record.sha256
-                and latest_record.sha256 != sha256
-            ):
-                handle_different_sha256(
-                    latest_record,
-                    upload_filename,
-                    upload_extension,
-                    image_file,
-                    sha256,
-                    now,
+            if latest_record.img:
+                old_image_path = os.path.join(
+                    IMAGE_PATH2, os.path.basename(latest_record.img)
                 )
-            else:
-                continue
 
-    return redirect("upload_pt_result", message=f"药品图片上传完毕!")
+                if not latest_record.sha256:
+                    handle_empty_sha256(
+                        latest_record, image_file, sha256, now, success_list
+                    )
+                elif default_storage.exists(old_image_path):
+                    if (
+                        upload_filename == latest_record.name
+                        and latest_record.sha256 != sha256
+                    ):
+                        handle_different_sha256(
+                            latest_record,
+                            upload_filename,
+                            upload_extension,
+                            image_file,
+                            sha256,
+                            now,
+                            success_list,
+                        )
+                    else:
+                        failure_dict[image_file.name] = "文件哈希值相同"
+                else:
+                    new_image_path = default_storage.save(
+                        os.path.join(IMAGE_PATH2, image_file.name), image_file
+                    )
+                    latest_record.img = new_image_path
+                    latest_record.sha256 = sha256
+                    latest_record.update_time = now
+                    latest_record.save()
+                    success_list.append(image_file.name)
+            else:
+                new_image_path = default_storage.save(
+                    os.path.join(IMAGE_PATH2, image_file.name), image_file
+                )
+                latest_record.img = new_image_path
+                latest_record.sha256 = sha256
+                latest_record.update_time = now
+                latest_record.save()
+                success_list.append(image_file.name)
+
+    return render(
+        request,
+        "result.html",
+        {
+            "message": "药品图片上传完毕!",
+            "failure_dict": failure_dict,
+            "total_count": total_count,
+            "success_count": len(success_list),
+            "failure_count": total_count - len(success_list),
+        },
+    )
 
 
 def upload_pt_result(request, message):

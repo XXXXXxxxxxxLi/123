@@ -1,10 +1,45 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <title>上传结果</title>
 </head>
 <body>
-    <h1>{{ message }}</h1>
-    <p><a href="{% url 'upload_pt_images' %}">返回上传页面</a></p>
+<div class="container mt-5">
+    <h1>上传结果</h1>
+
+    <p>总共上传了: {{ total_count }} 个文件</p>
+    <p>成功上传了: {{ success_count }} 个文件</p>
+    <p>上传失败了: {{ failure_count }} 个文件</p>
+
+    {% if success_list %}
+        <h2>成功上传的文件：</h2>
+        <ul>
+            {% for file_name in success_list %}
+                <li>{{ file_name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if failure_dict %}
+        <h2>上传失败的文件：</h2>
+        <ul>
+            {% for file_name, failure_reason in failure_dict.items %}
+                <li>{{ file_name }} - 失败原因: {{ failure_reason }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <a href="{% url 'upload_pt_images' %}" class="btn btn-primary">返回上传页面</a>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
