@@ -1,2 +1,0 @@
-include lanms/csrc/*.h
-include lanms/csrc/*/*.hpp
